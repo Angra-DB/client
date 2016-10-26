@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -28,6 +31,16 @@ public class MainCLI {
 		options.addOption(new Option("h", true, "host"));
 		options.addOption(new Option("p", true, "port"));
 	}
+	
+	
+	private boolean isValidJson(String str){
+		    try {
+		        new JsonParser().parse(str);
+		        return true;
+		    } catch (JsonSyntaxException jse) {
+		        return false;
+		    }
+		}
 	
 	private void connect(String host, int port) throws Exception {
 		System.out.print("Trying to connect to " + host + "....");
@@ -62,13 +75,32 @@ public class MainCLI {
 			BufferedReader reader = new BufferedReader(in);
 			
 			out.println(buffer.toString());
+
+			StringBuilder json_buffer = new StringBuilder();
 			
+			if(buffer.toString().startsWith("save"))
+				json_buffer.append(buffer.toString().substring(5));
+			else if(buffer.toString().startsWith("lookup"))
+				json_buffer.append(buffer.toString().substring(7));
+			else if(buffer.toString().startsWith("delete"))
+				json_buffer.append(buffer.toString().substring(7));
+			else if(buffer.toString().startsWith("update"))
+				json_buffer.append(buffer.toString().substring(7));
+			
+			if(isValidJson(json_buffer.toString())){
+				System.out.println("é Json");
+			}
+			else
+				System.out.println("Não é Json");
+				
+			System.out.println(json_buffer.toString());
 			System.out.println(reader.readLine());
 			System.out.println("Done.");
 		}
 	}
 	
 	public static void main(String args[]) {
+		
 		MainCLI main = new MainCLI();
 		try {
 			CommandLineParser parser = new BasicParser();
